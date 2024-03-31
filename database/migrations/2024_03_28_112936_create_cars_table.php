@@ -19,6 +19,7 @@ class CreateCarsTable extends Migration
             $table->string('model');
             $table->string('license_plate');
             $table->decimal('rental_rate', 8, 2);
+            $table->boolean('status')->default(false);
             $table->timestamps();
         });
     }

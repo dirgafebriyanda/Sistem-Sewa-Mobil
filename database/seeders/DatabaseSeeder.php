@@ -28,20 +28,6 @@ class DatabaseSeeder extends Seeder
             'role' => 'Admin',
             'password' => Hash::make('password'),
         ]);
-        User::create([
-            'name' => 'Febriyanda',
-            'address' => '123 Main Street',
-            'phone_number' => '1234567890',
-            'driver_license_number' => 'DL123456',
-            'email' => 'febriyanda@gmail.com',
-            'role' => 'User',
-            'password' => Hash::make('password'),
-        ]);
-        Cars::create([
-            'brand' => 'Toyota',
-            'model' => 'Camry',
-            'license_plate' => 'ABC123',
-            'rental_rate' => 300000,
-        ]);
+        
     }
 }

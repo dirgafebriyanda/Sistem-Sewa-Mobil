@@ -6,6 +6,11 @@
             <div class="col-md-10">
                 <div class="card">
                     <div class="card-body">
+                        @if (session()->has('error'))
+                            <div class="alert alert-danger" id="notif" role="alert">
+                                {{ session('error') }}
+                            </div>
+                        @endif
                         @foreach ($rentals as $rental)
                             <form action="{{ route('return.store') }}" method="POST">
                                 @csrf
@@ -66,6 +71,7 @@
                                         <input type="text" id="total_cost" name="total_cost" class="form-control">
                                     </div>
                                 </div>
+                                <input type="hidden" name="status" value="0">
                                 <button type="submit" class="btn btn-success w-100">Verifikasi</button>
                             </form>
                         @endforeach

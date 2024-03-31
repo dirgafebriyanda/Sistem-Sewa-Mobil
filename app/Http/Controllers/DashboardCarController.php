@@ -13,19 +13,24 @@ class DashboardCarController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-public function index()
+public function index(Request $request)
 {
-    // Mengambil data Cars dengan pagination
+   if ($request->has('search')) {
+    $search = $request->search;
+    $cars = Cars::where('brand', 'LIKE', '%' . $search . '%')
+                 ->orWhere('model', 'LIKE', '%' . $search . '%')
+                 ->paginate(10);
+} else {
     $cars = Cars::orderBy('id', 'DESC')->paginate(10);
+}
 
-    // Mengambil data Rentals yang terkait dengan Cars
-    $rentals = Rentals::all();
+$rentals = Rentals::all();
+return view('car.index', [
+    'title' => 'Dashboard | Daftar Mobil',
+    'cars' => $cars,
+    'rentals' => $rentals,
+]);
 
-    return view('car.index', [
-        'title' => 'Dashboard | Daftar Mobil',
-        'cars' => $cars,
-        'rentals' => $rentals,
-    ]);
 }
 
 
@@ -34,10 +39,22 @@ public function index()
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
+        // Dapatkan nilai pencarian dari input form
+    $search = $request->input('search');
+
+    // Lakukan query pencarian berdasarkan merek atau model
+    $cars = Cars::query()
+        ->where('brand', 'like', "%$search%")
+        ->orWhere('model', 'like', "%$search%")
+        ->where('status', 0) // Assuming 0 means available
+        ->get();
+
+    // Tampilkan hasil pencarian ke dalam view atau lakukan operasi lainnya
         return view('car.create',[
-            'title' => 'Dashboard | Tambah Mobil'
+            'title' => 'Dashboard | Tambah Mobil',
+            'cars' => $cars
         ]);
     }
 
@@ -106,4 +123,5 @@ public function index()
     {
         //
     }
+
 }

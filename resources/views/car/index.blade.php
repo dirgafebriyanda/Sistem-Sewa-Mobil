@@ -1,5 +1,18 @@
 @extends('layout.index')
 @section('content')
+    <div class="row justify-content-end">
+        <div class="col-md-4">
+            <form action="{{ route('car.index') }}" method="GET">
+                <div class="input-group mb-3">
+                    <input type="search" id="search" name="search" class="form-control" placeholder="cari...">
+                    <div class="input-group-append">
+                        <button type="submit" class="btn btn-primary">Cari</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="card shadow mb-4">
         <div class="card-header py-3 justify-content-between d-flex">
             <h6 class="m-0 font-weight-bold text-dark"><a href=""> <i class="fas fa-fw fa-tachometer-alt"></i>
@@ -24,10 +37,11 @@
                     <thead>
                         <tr>
                             <th>No</th>
-                            <th>Merek</th>
+                            <th>Mobil</th>
                             <th>Model</th>
                             <th>Plat</th>
                             <th>Harga</th>
+                            <th>Status</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -38,7 +52,14 @@
                                 <td>{{ $item->brand }}</td>
                                 <td>{{ $item->model }}</td>
                                 <td>{{ $item->license_plate }}</td>
-                                <td>{{ $item->rental_rate }}</td>
+                                <td>Rp. {{ $item->rental_rate }}</td>
+                                <td>
+                                    @if ($item->status)
+                                        Disewa
+                                    @else
+                                        Tersedia
+                                    @endif
+                                </td>
                                 <td>
                                     @auth
                                         @if (auth()->user()->role == 'Admin')
@@ -56,14 +77,8 @@
                                     @endauth
                                     @auth
                                         @if (auth()->user()->role == 'User')
-                                            @php
-                                                $isRented = $rentals->contains('car_id', $item->id);
-                                            @endphp
-
-                                            <a href="{{ $isRented ? '#' : route('rental.create', ['car_id' => $item->id]) }}"
-                                                class="btn btn-primary{{ $isRented ? ' disabled' : '' }}">
-                                                Sewa
-                                            </a>
+                                            <a href="{{ route('rental.create', ['car_id' => $item->id]) }}"
+                                                class="btn btn-primary {{ $item->status == 1 ? 'disabled' : '' }}">Sewa</a>
                                         @endif
                                     @endauth
                                 </td>

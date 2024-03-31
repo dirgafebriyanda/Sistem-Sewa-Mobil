@@ -43,19 +43,32 @@ class DashboardReturnController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {
-  $data = $request->validate([
+{
+    // Validasi input data return
+    $validatedData = $request->validate([
         'rental_id' => 'required|numeric',
         'return_date' => 'required|date',
         'rented_days' => 'required|numeric',
         'total_cost' => 'required|numeric',
     ]);
 
-    Returns::create($data);
+    // Dapatkan data rental berdasarkan rental_id
+    $rental = Rentals::findOrFail($validatedData['rental_id']);
+
+    // Update status mobil berdasarkan car_id dari data rental
+    $car = Cars::where('id', $rental->car_id)->update(['status' => $request->status]);
+
+    // Simpan data return
+    $return = Returns::create($validatedData);
+
+    // Periksa apakah keduanya berhasil disimpan
+    if (!$car || !$return) {
+        return redirect()->route('return.verifikasi')->with('error', 'Mobil gagal dikembalikan');
+    }
 
     return redirect()->route('return.index')->with('success', 'Mobil telah dikembalikan');
+}
 
-    }
 
     /**
      * Display the specified resource.

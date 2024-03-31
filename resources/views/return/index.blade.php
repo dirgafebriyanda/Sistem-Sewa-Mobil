@@ -7,6 +7,11 @@
                     Dashboard</a> / Menyewa</h6>
         </div>
         <div class="card-body">
+            @if (session()->has('success'))
+                <div class="alert alert-success" id="notif" role="alert">
+                    {{ session('success') }}
+                </div>
+            @endif
             <div class="table-responsive">
                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                     <thead>
@@ -15,7 +20,7 @@
                             <th>Mobil</th>
                             <th>Plat Nomor</th>
                             <th>Tanggal Pengembalian</th>
-                            <th>Total Sewa</th>
+                            <th>Lama Sewa</th>
                             <th>Biaya</th>
                             @auth
                                 @if (auth()->user()->role == 'Admin')
@@ -33,8 +38,8 @@
                                 <td>{{ $item->brand }}</td>
                                 <td>{{ $item->license_plate }}</td>
                                 <td>{{ $item->return_date }}</td>
-                                <td>{{ $item->rented_days }}</td>
-                                <td>{{ $item->total_cost }}</td>
+                                <td>{{ $item->rented_days }} Hari</td>
+                                <td>Rp. {{ $item->total_cost }}</td>
                                 @auth
                                     @if (auth()->user()->role == 'Admin')
                                         <td>

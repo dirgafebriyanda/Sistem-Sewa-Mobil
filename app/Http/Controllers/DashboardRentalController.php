@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Cars;
 use App\Models\Rentals;
+use App\Models\Returns;
 use Illuminate\Http\Request;
 
 class DashboardRentalController extends Controller
@@ -17,10 +18,11 @@ class DashboardRentalController extends Controller
     {
 
          $rentals = Rentals::with('user', 'car')->orderBy('id', 'desc')->paginate(10);
-
+        $returns = Returns::all();
     return view('rental.index', [
         'title' => 'Dashboard | Daftar Sewa',
         'rentals' => $rentals,
+        'returns' => $returns,
     ]);
     }
 
@@ -45,19 +47,34 @@ class DashboardRentalController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {
-        $data = $request->validate([
+{
+    // Validasi input status mobil
+    $validatedCar = $request->validate([
+        'status' => 'required',
+    ]);
+
+    // Update status mobil
+    Cars::where('id', $request->car_id)->update($validatedCar);
+
+    // Validasi input data sewa
+    $validatedData = $request->validate([
         'user_id' => 'required|max:255',
         'car_id' => 'required|max:255',
         'start_date' => 'required|date',
         'end_date' => 'required|date',
     ]);
 
-    $rental = Rentals::create($data);
+    // Simpan data sewa
+    $rental = Rentals::create($validatedData);
 
-    return redirect()->route('rental.index')->with('success','Mobil '. $rental->brand . ' berhasil disewa.');
-
+    // Cek apakah penyewaan berhasil
+    if (!$rental) {
+        return redirect()->route('rental.create', $request->car_id)->with('error', 'Mobil gagal disewa.');
     }
+
+    return redirect()->route('rental.index')->with('success', 'Mobil berhasil disewa.');
+}
+
 
     /**
      * Display the specified resource.
