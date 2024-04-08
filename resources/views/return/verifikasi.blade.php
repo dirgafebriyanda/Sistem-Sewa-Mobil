@@ -42,14 +42,14 @@
                                     <label for="start_date" class="col-sm-4 col-form-label">Tanggal Mulai Sewa:</label>
                                     <div class="col-sm-8">
                                         <input type="date" id="start_date" value="{{ $rental->start_date }}"
-                                            class="form-control">
+                                            class="form-control" readonly>
                                     </div>
                                 </div>
                                 <div class="form-group row">
                                     <label for="end_date" class="col-sm-4 col-form-label">Tanggal Selesai Sewa:</label>
                                     <div class="col-sm-8">
                                         <input type="date" id="end_date" value="{{ $rental->end_date }}"
-                                            class="form-control">
+                                            class="form-control" readonly>
                                     </div>
                                 </div>
                                 <div class="form-group row">

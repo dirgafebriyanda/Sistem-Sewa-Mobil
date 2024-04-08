@@ -35,7 +35,7 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            return redirect()->intended('/dashboard');
+        return redirect('/dashboard')->with('error', 'Login gagal');
         }
 
         return back()->with('loginError', 'Login failed!');
@@ -66,9 +66,13 @@ class AuthController extends Controller
 
     $validatedData['password'] = Hash::make($validatedData['password']);
 
-    User::create($validatedData);
+    $user = User::create($validatedData);
+    Auth::login($user);
+    if ( $user) {
+        return redirect('/dashboard')->with('success', 'Pendaftaran berhasil');
+    }
+    return redirect()->back()->with('error', 'Pendaftaran gagal');
 
-    return redirect('/login')->with('success', 'Registration successful! Please login');
 }
 
 

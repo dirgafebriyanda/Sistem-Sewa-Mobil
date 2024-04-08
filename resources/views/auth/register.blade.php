@@ -70,7 +70,9 @@
                                     </form>
                                     <hr>
                                     <div class="text-center">
-                                        <a class="small" href="{{ route('login') }}">Already have an account? Login!</a>
+                                        <div class="fw-bold">Sudah memiliki akun?<a class="fw-bold"
+                                                href="{{ route('login') }}"> Masuk</a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

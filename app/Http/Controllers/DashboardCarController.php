@@ -13,26 +13,23 @@ class DashboardCarController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-public function index(Request $request)
-{
-   if ($request->has('search')) {
-    $search = $request->search;
-    $cars = Cars::where('brand', 'LIKE', '%' . $search . '%')
-                 ->orWhere('model', 'LIKE', '%' . $search . '%')
-                 ->paginate(10);
-} else {
-    $cars = Cars::orderBy('id', 'DESC')->paginate(10);
-}
+    public function index()
+    {
+        // Mendapatkan data mobil dengan filter dan pagination
+        $cars = Cars::orderBy('id', 'DESC')
+            ->filter(['search' => request('search')])
+            ->paginate(10);
 
-$rentals = Rentals::all();
-return view('car.index', [
-    'title' => 'Dashboard | Daftar Mobil',
-    'cars' => $cars,
-    'rentals' => $rentals,
-]);
+        // Mendapatkan semua data penyewaan
+        $rentals = Rentals::all();
 
-}
-
+        // Mengembalikan tampilan dengan data yang diperlukan
+        return view('car.index', [
+            'title' => 'Dashboard | Daftar Mobil',
+            'cars' => $cars,
+            'rentals' => $rentals,
+        ]);
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -42,19 +39,19 @@ return view('car.index', [
     public function create(Request $request)
     {
         // Dapatkan nilai pencarian dari input form
-    $search = $request->input('search');
+        $search = $request->input('search');
 
-    // Lakukan query pencarian berdasarkan merek atau model
-    $cars = Cars::query()
-        ->where('brand', 'like', "%$search%")
-        ->orWhere('model', 'like', "%$search%")
-        ->where('status', 0) // Assuming 0 means available
-        ->get();
+        // Lakukan query pencarian berdasarkan merek atau model
+        $cars = Cars::query()
+            ->where('brand', 'like', "%$search%")
+            ->orWhere('model', 'like', "%$search%")
+            ->where('status', 0) // Assuming 0 means available
+            ->get();
 
-    // Tampilkan hasil pencarian ke dalam view atau lakukan operasi lainnya
-        return view('car.create',[
+        // Tampilkan hasil pencarian ke dalam view atau lakukan operasi lainnya
+        return view('car.create', [
             'title' => 'Dashboard | Tambah Mobil',
-            'cars' => $cars
+            'cars' => $cars,
         ]);
     }
 
@@ -67,16 +64,17 @@ return view('car.index', [
     public function store(Request $request)
     {
         $data = $request->validate([
-        'brand' => 'required|max:255',
-        'model' => 'required|max:255',
-        'license_plate' => 'required|max:255|unique:cars',
-        'rental_rate' => 'required|numeric',
-    ]);
+            'brand' => 'required|max:255',
+            'model' => 'required|max:255',
+            'license_plate' => 'required|max:255|unique:cars',
+            'rental_rate' => 'required|numeric',
+        ]);
 
-    $cars = Cars::create($data);
+        $cars = Cars::create($data);
 
-    return redirect()->route('car.index')->with('success','Mobil '. $cars->brand . ' berhasil ditambahkan.');
-
+        return redirect()
+            ->route('car.index')
+            ->with('success', 'Mobil ' . $cars->brand . ' berhasil ditambahkan.');
     }
 
     /**
@@ -87,7 +85,11 @@ return view('car.index', [
      */
     public function show($id)
     {
-        //
+        $car = Cars::find($id);
+        return view ('car.show',[
+            'title' => 'Dashboard | Detail Mobil',
+            'cars' => $car
+        ]);
     }
 
     /**
@@ -121,7 +123,12 @@ return view('car.index', [
      */
     public function destroy($id)
     {
-        //
+         $car = Cars::find($id);
+    if ($car) {
+        $car->delete();
+        return redirect()->route('car.index')->with('success', 'Mobil ' .$car->brand. ' berhasil dihapus');
+    } else {
+        return redirect()->back()->with('error', 'Akun anda gagal dihapus');
     }
-
+    }
 }

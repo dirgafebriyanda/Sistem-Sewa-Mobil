@@ -39,7 +39,10 @@
                                     </form>
                                     <hr>
                                     <div class="text-center">
-                                        <a class="small" href="{{ route('register') }}">Daftar!</a>
+                                        <div class="fw-bold">
+                                            Belum memiliki akun? <a class="small" href="{{ route('register') }}">
+                                                Daftar</a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

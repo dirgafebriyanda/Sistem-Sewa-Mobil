@@ -16,7 +16,7 @@
                         </p>
                     </div>
                     <div class="card-body">
-                        <form action="{{ route('car.store') }}" method="POST">
+                        <form action="{{ route('car.store') }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             <div class="mb-3">
                                 <label>Merek :</label>
@@ -46,14 +46,10 @@
                                         name="rental_rate">
                                 </div>
                             </div>
-                            <button type="submit" class="btn btn-success w-100">Simpan</button>
+                            <button type="submit" class="btn btn-primary w-100">Simpan</button>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
-
-
-
-        <!-- /.container-fluid -->
     @endsection

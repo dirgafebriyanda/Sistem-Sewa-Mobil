@@ -4,7 +4,8 @@
         <div class="col-md-4">
             <form action="{{ route('car.index') }}" method="GET">
                 <div class="input-group mb-3">
-                    <input type="search" id="search" name="search" class="form-control" placeholder="cari...">
+                    <input type="search" value="{{ request('search') }}" id="search" name="search" class="form-control"
+                        placeholder="Cari...">
                     <div class="input-group-append">
                         <button type="submit" class="btn btn-primary">Cari</button>
                     </div>
@@ -22,7 +23,7 @@
                     <a href="{{ route('car.create') }}" class="btn btn-primary" title="Tambah"><i class="fas fa-plus"></i></a>
                 @endif
                 @if (auth()->user()->role == 'User')
-                    <a href="{{ route('return.check') }}" class="btn btn-primary" title="Kembalikan">Kembalikan</a>
+                    <a href="{{ route('return.check') }}" class="btn btn-primary" title="Kembalikan">Kembalikan Mobil</a>
                 @endif
             @endauth
         </div>
@@ -36,7 +37,6 @@
                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                     <thead>
                         <tr>
-                            <th>No</th>
                             <th>Mobil</th>
                             <th>Model</th>
                             <th>Plat</th>
@@ -48,7 +48,6 @@
                     <tbody>
                         @foreach ($cars as $item)
                             <tr>
-                                <td>{{ $loop->iteration }}</td>
                                 <td>{{ $item->brand }}</td>
                                 <td>{{ $item->model }}</td>
                                 <td>{{ $item->license_plate }}</td>
@@ -63,16 +62,29 @@
                                 <td>
                                     @auth
                                         @if (auth()->user()->role == 'Admin')
-                                            <a href="" class="btn btn-success"><i class="fas fa-eye"></i></a>
-                                            <a href="" class="btn btn-warning"><i class="fas fa-edit"></i></a>
-                                            <form class="d-inline" action="{{ route('user.destroy', $item->id) }}"
-                                                method="post">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-danger"
-                                                    onclick="confirm('Are you sure you want to delete this user?')"><i
-                                                        class="fas fa-trash"></i></button>
-                                            </form>
+                                            <div class="row flex-nowrap">
+                                                <div class="col-sm-3">
+                                                    <a href="{{ route('car.show', $item->id) }}" class="btn btn-dark"><i
+                                                            class="fas fa-eye"></i></a>
+                                                </div>
+                                                <div class="col-sm-3">
+                                                    @auth
+                                                        @if ($item->status != 1)
+                                                            <form class="d-inline" action="{{ route('car.destroy', $item->id) }}"
+                                                                method="post">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit"
+                                                                    class="btn btn-danger {{ $rentals->contains('car_id', $item->id) ? 'disabled' : '' }}"
+                                                                    onclick="return confirm('Apakah anda yakin ingin menghapus data mobil {{ $item->brand }} ?')">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </button>
+
+                                                            </form>
+                                                        @endif
+                                                    @endauth
+                                                </div>
+                                            </div>
                                         @endif
                                     @endauth
                                     @auth
@@ -86,6 +98,25 @@
                         @endforeach
                     </tbody>
                 </table>
+                @if ($cars->total() > 0)
+                    <nav aria-label="Page navigation example">
+                        <ul class="pagination justify-content-end">
+                            <li class="page-item {{ $cars->onFirstPage() ? 'disabled' : '' }}">
+                                <a class="page-link" href="{{ $cars->previousPageUrl() }}">Previous</a>
+                            </li>
+                            @foreach ($cars->getUrlRange(1, $cars->lastPage()) as $page => $url)
+                                <li class="page-item {{ $page == $cars->currentPage() ? 'active' : '' }}">
+                                    <a class="page-link"
+                                        href="{{ $url }}{{ request()->has('search') ? '&search=' . request()->input('search') : '' }}">{{ $page }}</a>
+                                </li>
+                            @endforeach
+                            <li class="page-item {{ $cars->hasMorePages() ? '' : 'disabled' }}">
+                                <a class="page-link"
+                                    href="{{ $cars->nextPageUrl() }}{{ request()->has('search') ? '&search=' . request()->input('search') : '' }}">Next</a>
+                            </li>
+                        </ul>
+                    </nav>
+                @endif
             </div>
         </div>
     </div>

@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Cars;
+use App\Models\Rentals;
+use App\Models\Returns;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
@@ -13,8 +16,28 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        return view('index',[
-            'title' => 'Dashboard'
+        $cars = Cars::orderBy('brand', 'asc')
+            ->filter(['search' => request('search')])
+            ->paginate(9);
+        $rentals = Rentals::all();
+        $returns = Returns::all();
+        $countCars = Cars::all()->count();
+        $countRentals = Rentals::all()->count();
+        $countReturns = Returns::all()->count();
+
+        $totalMonthlyEarnings = $returns->sum('total_cost');
+        $averageEarnings = $returns->avg('total_cost');
+
+
+        return view('index', [
+            'title' => 'Dashboard',
+            'cars' => $cars,
+            'totalMonthlyEarnings' => $totalMonthlyEarnings,
+            'averageEarnings' => $averageEarnings,
+            'rentals' => $rentals,
+            'countCars' => $countCars,
+            'countRentals' => $countRentals,
+            'countReturns' => $countReturns,
         ]);
     }
 
