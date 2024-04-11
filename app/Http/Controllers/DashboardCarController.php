@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Cars;
 use App\Models\Rentals;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 
 class DashboardCarController extends Controller
 {
@@ -61,21 +63,36 @@ class DashboardCarController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
-    {
-        $data = $request->validate([
-            'brand' => 'required|max:255',
-            'model' => 'required|max:255',
-            'license_plate' => 'required|max:255|unique:cars',
-            'rental_rate' => 'required|numeric',
-        ]);
+public function store(Request $request)
+{
+    $data = $request->validate([
+        'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+        'brand' => 'required|max:255',
+        'model' => 'required|max:255',
+        'license_plate' => 'required|max:255|unique:cars',
+        'rental_rate' => 'required|numeric',
+        'specification' => 'string',
+    ]);
 
-        $cars = Cars::create($data);
-
-        return redirect()
-            ->route('car.index')
-            ->with('success', 'Mobil ' . $cars->brand . ' berhasil ditambahkan.');
+    $files = [];
+    if ($request->hasfile('images')) {
+        foreach ($request->file('images') as $file) {
+            $name = time() . rand(1, 100) . '.' . $file->extension();
+            $file->storeAs('car', $name); // Menyimpan file ke storage dengan nama unik
+            $files[] = ($name);
+        }
     }
+
+    $data['image'] = implode(',',$files);
+
+    $car = Cars::create($data);
+
+    return redirect()
+        ->route('car.index')
+        ->with('success', 'Mobil ' . $car->brand . ' berhasil ditambahkan.');
+}
+
+
 
     /**
      * Display the specified resource.
@@ -121,14 +138,26 @@ class DashboardCarController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
-    {
-         $car = Cars::find($id);
+public function destroy($id)
+{
+    $car = Cars::find($id);
+
     if ($car) {
+        // Hapus gambar mobil dari storage
+        $images = explode(',', $car->image);
+        foreach ($images as $image) {
+            $path = 'storage/car/' . $image;
+            if (File::exists($path)) {
+                File::delete($path);
+            }
+        }
+
+        // Hapus entri mobil dari database
         $car->delete();
-        return redirect()->route('car.index')->with('success', 'Mobil ' .$car->brand. ' berhasil dihapus');
+        
+        return redirect()->route('car.index')->with('success', 'Mobil ' . $car->brand . ' berhasil dihapus');
     } else {
-        return redirect()->back()->with('error', 'Akun anda gagal dihapus');
+        return redirect()->back()->with('error', 'Mobil tidak ditemukan');
     }
-    }
-}
+
+}}

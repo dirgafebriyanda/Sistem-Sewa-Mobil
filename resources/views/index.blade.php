@@ -159,11 +159,7 @@
                 <div class="card text-center shadow-lg">
                     <div class="card-body">
                         <img src="{{ asset('img/not-found.png') }}" class="card-img-top" alt="Image">
-                        <h5 class="card-title font-weight-bold text-danger">Mobil Tidak Tersedia</h5>
-                        <p class="card-text text-dark">Maaf, mobil {{ request('search') }} yang Anda cari tidak tersedia
-                            saat ini.
-                        </p>
-                        <a href="{{ route('dashboard.index') }}" class="btn btn-success w-100">Lihat Mobil Lain</a>
+                        <h5 class="card-title font-weight-bold text-danger">Mobil Belum Tersedia</h5>
                     </div>
                 </div>
             </div>
